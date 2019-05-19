@@ -2,6 +2,8 @@
 using DapperContribDemo.Core;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 
@@ -15,28 +17,22 @@ namespace DapperContribDemo
 		{
 			try
 			{
-				/*
-					Remember to install the following Nuget packages for Configuration:
-						Microsoft.Extensions.Configuration
-						Microsoft.Extensions.Configuration.FileExtensions
-						Microsoft.Extensions.Configuration.Json
 
-					Remember to set the appSettings.json to always copy output during build, via its properties.
+				_config = InitializeConfiguration();
 
-					Dapper Contrib docs:
-						https://dapper-tutorial.net/dapper-contrib
-				*/
+				//var user = GetUser(1);
+				//Console.WriteLine($"User {user.FirstName} {user.LastName}");
+				//Console.WriteLine($"Email {user.Email}");
 
-				var builder = new ConfigurationBuilder()
-					.SetBasePath(Directory.GetCurrentDirectory())
-					.AddJsonFile("appSettings.json", optional: false, reloadOnChange: true);
+				var newUserId = InsertUser(new User("Jane", "Doe", "jdoe@gmail.com"));
+				Console.WriteLine($"Inserted user. ID: {newUserId}");
 
-				_config = builder.Build();
+				var users = GetUsers();
+				foreach(User user in users)
+				{
+					Console.WriteLine($"ID: {user.Id}; Name: {user.FirstName} {user.LastName}; Email: {user.Email}");
+				}
 
-				var user = GetUser();
-
-				Console.WriteLine($"User {user.FirstName} {user.LastName}");
-				Console.WriteLine($"Email {user.Email}");
 			}
 			catch (Exception ex)
 			{
@@ -49,12 +45,70 @@ namespace DapperContribDemo
 			Console.ReadKey();
 		}
 
-		public static User GetUser()
+		private static IConfigurationRoot InitializeConfiguration()
+		{
+			/*
+				Remember to install the following Nuget packages for Configuration:
+					Microsoft.Extensions.Configuration
+					Microsoft.Extensions.Configuration.FileExtensions
+					Microsoft.Extensions.Configuration.Json
+
+				Remember to set the appSettings.json to always copy output during build, via its properties.
+
+				Dapper Contrib docs:
+					https://dapper-tutorial.net/dapper-contrib
+
+				Using the .NET Framework style ConfigurationManager:
+					https://stackoverflow.com/questions/47591910/is-configurationmanager-appsettings-available-in-net-core-2-0
+			*/
+			return new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+				.Build();
+		}
+
+		public static User GetUser(int id)
 		{
 			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
 			{
 				connection.Open();
-				return connection.Get<User>(1);
+				return connection.Get<User>(id);
+			}
+		}
+
+		public static IEnumerable<User> GetUsers()
+		{
+			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
+			{
+				connection.Open();
+				return connection.GetAll<User>();
+			}
+		}
+
+		public static long InsertUser(User user)
+		{
+			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
+			{
+				connection.Open();
+				return connection.Insert(user);
+			}
+		}
+
+		public static long InsertUsers(IEnumerable<User> users)
+		{
+			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
+			{
+				connection.Open();
+				return connection.Insert(users);
+			}
+		}
+
+		public static bool DeleteUser(User user)
+		{
+			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
+			{
+				connection.Open();
+				return connection.Delete<User>(user);
 			}
 		}
 	}
