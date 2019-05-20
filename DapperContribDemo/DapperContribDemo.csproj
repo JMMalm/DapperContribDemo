@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DapperContribDemo.Core\DapperContribDemo.Core.csproj" />
+    <ProjectReference Include="..\DapperContribDemo.Infrastructure\DapperContribDemo.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

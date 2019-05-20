@@ -19,6 +19,12 @@ namespace DapperContribDemo.MVC
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
+				.ConfigureAppConfiguration((hostingContext, config) =>
+				{
+					config.SetBasePath(Directory.GetCurrentDirectory())
+						.AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+						.Build();
+				})
 				.UseStartup<Startup>();
 	}
 }

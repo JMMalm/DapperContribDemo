@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using DapperContribDemo.Infrastructure.Repositories;
 
 namespace DapperContribDemo
 {
@@ -19,15 +20,16 @@ namespace DapperContribDemo
 			{
 
 				_config = InitializeConfiguration();
+				UserRepository userRepo = new UserRepository(_config);
 
 				//var user = GetUser(1);
 				//Console.WriteLine($"User {user.FirstName} {user.LastName}");
 				//Console.WriteLine($"Email {user.Email}");
 
-				var newUserId = InsertUser(new User("Jane", "Doe", "jdoe@gmail.com"));
+				var newUserId = userRepo.InsertUser(new User("Jane", "Doe", "jdoe@gmail.com"));
 				Console.WriteLine($"Inserted user. ID: {newUserId}");
 
-				var users = GetUsers();
+				var users = userRepo.GetUsers();
 				foreach(User user in users)
 				{
 					Console.WriteLine($"ID: {user.Id}; Name: {user.FirstName} {user.LastName}; Email: {user.Email}");
@@ -65,51 +67,6 @@ namespace DapperContribDemo
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
 				.Build();
-		}
-
-		public static User GetUser(int id)
-		{
-			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
-			{
-				connection.Open();
-				return connection.Get<User>(id);
-			}
-		}
-
-		public static IEnumerable<User> GetUsers()
-		{
-			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
-			{
-				connection.Open();
-				return connection.GetAll<User>();
-			}
-		}
-
-		public static long InsertUser(User user)
-		{
-			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
-			{
-				connection.Open();
-				return connection.Insert(user);
-			}
-		}
-
-		public static long InsertUsers(IEnumerable<User> users)
-		{
-			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
-			{
-				connection.Open();
-				return connection.Insert(users);
-			}
-		}
-
-		public static bool DeleteUser(User user)
-		{
-			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
-			{
-				connection.Open();
-				return connection.Delete<User>(user);
-			}
 		}
 	}
 }
