@@ -1,18 +1,30 @@
 ﻿using Dapper.Contrib.Extensions;
-using System;
-using System.Data.SqlClient;
 using DapperContribDemo.Core.Extensions;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DapperContribDemo.Core
 {
 	[Table("Users")]
 	public class User
 	{
-		[Key]
+		[Dapper.Contrib.Extensions.Key]
 		public int Id { get; set; }
+
+		[Display(Name = "First Name")]
+		[DataType(DataType.Text)]
 		public string FirstName { get; set; }
+
+		[Display(Name = "Last Name")]
+		[DataType(DataType.Text)]
 		public string LastName { get; set; }
+
+		[Display(Name = "Email")]
+		[DataType(DataType.EmailAddress)]
 		public string Email { get; set; }
+
+		[Display(Name = "Last Modified")]
+		[DataType(DataType.Date)]
 		public DateTime LastModified { get; set; }
 
 		[Write(false)]

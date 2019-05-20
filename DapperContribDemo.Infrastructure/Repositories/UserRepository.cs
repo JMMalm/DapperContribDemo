@@ -57,6 +57,16 @@ namespace DapperContribDemo.Infrastructure.Repositories
 			}
 		}
 
+		public bool UpdateUser(User user)
+		{
+			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
+			{
+				connection.Open();
+				user.LastModified = DateTime.Now;
+				return connection.Update<User>(user);
+			}
+		}
+
 		public  bool DeleteUser(User user)
 		{
 			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
