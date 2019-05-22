@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
+using System.Linq;
 
 namespace DapperContribDemo.Infrastructure.Repositories
 {
@@ -44,6 +44,7 @@ namespace DapperContribDemo.Infrastructure.Repositories
 			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
 			{
 				connection.Open();
+				user.LastModified = DateTime.Now;
 				return connection.Insert(user);
 			}
 		}
@@ -53,6 +54,7 @@ namespace DapperContribDemo.Infrastructure.Repositories
 			using (var connection = new SqlConnection(_config.GetConnectionString("DapperContribDemo")))
 			{
 				connection.Open();
+				users.ToList<User>().ForEach(u => u.LastModified = DateTime.Now);
 				return connection.Insert(users);
 			}
 		}

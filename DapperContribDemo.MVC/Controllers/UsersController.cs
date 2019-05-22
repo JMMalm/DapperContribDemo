@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Encodings.Web;
-using Microsoft.Extensions.Configuration;
+﻿using DapperContribDemo.Core;
 using DapperContribDemo.Infrastructure.Repositories;
-using DapperContribDemo.Core;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Text.Encodings.Web;
 
 namespace DapperContribDemo.MVC.Controllers
 {
@@ -30,9 +27,27 @@ namespace DapperContribDemo.MVC.Controllers
 			return View(_userRepo.GetUsers());
 		}
 
+		[HttpGet]
+		public IActionResult Create()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Create(User user)
+		{
+			if (ModelState.IsValid)
+			{
+				_userRepo.InsertUser(user);
+				return RedirectToAction("Index");
+			}
+			return View(user);
+		}
+
 		public IActionResult Edit(int? id)
 		{
-			if (id == null && id < 0)
+			if (id == null || id < 0)
 			{
 				return NotFound();
 			}
@@ -47,7 +62,7 @@ namespace DapperContribDemo.MVC.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Edit(User user)
+		public IActionResult Edit([Bind("FirstName, LastName, Email")] User user)
 		{
 			if (ModelState.IsValid)
 			{
