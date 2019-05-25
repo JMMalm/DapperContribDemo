@@ -3,7 +3,9 @@ using DapperContribDemo.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 
 namespace DapperContribDemo.MVC.Controllers
 {
@@ -22,9 +24,18 @@ namespace DapperContribDemo.MVC.Controllers
 			_userRepo = new UserRepository(_config);
 		}
 
-		public IActionResult Index()
+		public async Task<IActionResult> Index(string searchTerm)
 		{
-			return View(_userRepo.GetUsers());
+			var users = _userRepo.GetUsers();
+
+			if (!string.IsNullOrWhiteSpace(searchTerm))
+			{
+				users = users.Where(u =>
+					u.FirstName.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase)
+					|| u.LastName.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
+			}
+
+			return await Task.Run(() => View(users));
 		}
 
 		[HttpGet]
